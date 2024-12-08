@@ -20,7 +20,7 @@
         "preview": "vite preview",
         "pree2e": "vite build --mode=test",
         "e2e": "playwright test",
-        "postinstall": "electron-rebuild && npm rebuild canvas --update-binary",
+        "postinstall": "echo 'postinstall'",
         "lint": "eslint . --max-warnings 0",
         "lint-fix": "npm run lint -- --fix",
         "prepare": "husky",
