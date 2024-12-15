@@ -10,7 +10,7 @@ export default function TimelineContainer() {
     const { measures } = useMeasureStore()!;
     const { pages } = usePageStore()!;
     const { selectedPage, setSelectedPage } = useSelectedPage()!;
-    const [pxPerSecond, setPxPerSecond] = React.useState(40); // scale of the timeline
+    const [pxPerCount, setPxPerCount] = React.useState(25); // scale of the timeline
 
     // Rerender the timeline when the measures or pages change
     React.useEffect(() => {
@@ -28,13 +28,13 @@ export default function TimelineContainer() {
             >
                 <button
                     className="m-4 text-text outline-none duration-150 ease-out hover:text-accent focus-visible:-translate-y-4"
-                    onClick={() => setPxPerSecond(pxPerSecond * 0.8)}
+                    onClick={() => setPxPerCount(pxPerCount * 0.8)}
                 >
                     <Minus size={16} />
                 </button>
                 <button
                     className="m-4 text-text outline-none duration-150 ease-out hover:text-accent focus-visible:-translate-y-4"
-                    onClick={() => setPxPerSecond(pxPerSecond * 1.2)}
+                    onClick={() => setPxPerCount(pxPerCount * 1.2)}
                 >
                     <Plus size={16} />
                 </button>
@@ -58,19 +58,11 @@ export default function TimelineContainer() {
                             className={`flex h-full w-[25px] items-center justify-center rounded-6 border bg-fg-2 px-10 py-4 ${
                                 !isPlaying && "cursor-pointer"
                             } ${
-                                pages[0].id === selectedPage?.id
+                                pages[0].id === selectedPage?.id && !isPlaying
                                     ? // if the page is selected
-                                      `border-accent ${
-                                          isPlaying
-                                              ? "pointer-events-none text-text/75"
-                                              : ""
-                                      }`
-                                    : `border-stroke ${
-                                          isPlaying
-                                              ? "pointer-events-none text-text/75"
-                                              : ""
-                                      }`
-                            }`}
+                                      "border-accent"
+                                    : "border-stroke"
+                            } ${isPlaying ? "pointer-events-none text-text/75" : ""}`}
                             onClick={() => setSelectedPage(pages[0])}
                             title="First page"
                             aria-label="First page"
@@ -80,7 +72,7 @@ export default function TimelineContainer() {
                     )}
                     {pages.map((page, index) => {
                         if (index === 0) return null;
-                        const width = page.duration * pxPerSecond;
+                        const width = page.counts * pxPerCount;
                         return (
                             <div
                                 key={index}
@@ -94,19 +86,15 @@ export default function TimelineContainer() {
                                     className={`ml-6 flex h-full items-center justify-end rounded-6 border bg-fg-2 px-10 py-4 text-body text-text ${
                                         !isPlaying && "cursor-pointer"
                                     } ${
-                                        page.id === selectedPage?.id
+                                        (!isPlaying &&
+                                            page.id === selectedPage?.id) ||
+                                        (isPlaying &&
+                                            page.id ===
+                                                selectedPage?.nextPageId)
                                             ? // if the page is selected
-                                              `border-accent ${
-                                                  isPlaying
-                                                      ? "pointer-events-none text-text/75"
-                                                      : ""
-                                              }`
-                                            : `border-stroke ${
-                                                  isPlaying
-                                                      ? "pointer-events-none text-text/75"
-                                                      : ""
-                                              }`
-                                    }`}
+                                              "border-accent"
+                                            : "border-stroke"
+                                    } ${isPlaying ? "pointer-events-none text-text/75" : ""}`}
                                     onClick={() => {
                                         if (!isPlaying) setSelectedPage(page);
                                     }}
@@ -125,7 +113,7 @@ export default function TimelineContainer() {
                 >
                     {measures.map((measure, index) => {
                         const countsToUse = measure.getBigBeats();
-                        const width = measure.duration * pxPerSecond;
+                        const width = countsToUse * pxPerCount;
                         const metadata = `m${measure.number} - ${
                             measure.duration
                         } seconds - ${measure.getBigBeats()} counts - time signature: ${measure.timeSignature.toString()} - tempo: ${

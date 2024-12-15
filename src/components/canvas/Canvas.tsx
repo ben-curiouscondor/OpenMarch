@@ -606,6 +606,8 @@ export default function Canvas({
                     (callback[0] as () => void)(); // Stop X animation
                     (callback[1] as () => void)(); // Stop Y animation
                 });
+
+                // Stop marchers animation
                 if (timeoutID.current) {
                     clearTimeout(timeoutID.current);
                 }

@@ -252,9 +252,9 @@ export default class Measure {
      * 6/8, EIGHTH has 6 big beats.
      */
     getBigBeats(): number {
-        return (
+        return Math.floor(
             this.timeSignature.numerator /
-            (this.timeSignature.denominator * this.beatUnit.value)
+                (this.timeSignature.denominator * this.beatUnit.value),
         );
     }
 
@@ -377,6 +377,7 @@ export default class Measure {
             );
             currentTempo = { bpm: 120, beatUnit: BeatUnit.QUARTER };
         }
+        let lineBreakChar = Measure.parseLinebreakChar(abcHeader);
 
         // Create a new string to modify
         let newAbcString = abcString;
@@ -391,6 +392,8 @@ export default class Measure {
         const nextVoiceIndex = newAbcString.indexOf("V:");
         if (nextVoiceIndex > 0)
             newAbcString = newAbcString.substring(0, nextVoiceIndex);
+
+        newAbcString = newAbcString.replace(lineBreakChar, "");
 
         // make each bar a new line. We don't care about what type of barline it is
         const multiBarlines = new Set(["|]", "[|", "||", "|:", ":|", "::"]);
@@ -488,5 +491,17 @@ export default class Measure {
         const beatUnitString = `${parseInt(tempoMatch[1], 10)}/${parseInt(tempoMatch[2], 10)}`;
         const beatUnit = BeatUnit.fromString(beatUnitString);
         return { bpm: parseInt(tempoMatch[3], 10), beatUnit };
+    }
+
+    private static parseLinebreakChar(abcString: string): string {
+        var lineBreak = "$"; // default
+
+        const lineBreakInstructionRegex = /I:linebreak (\S)/;
+        const match = abcString.match(lineBreakInstructionRegex);
+        if (match && match.length > 0) {
+            lineBreak = match[1];
+        }
+
+        return lineBreak;
     }
 }
